@@ -11,6 +11,7 @@
 |
 */
 
+Route::get('/', 'ProjectController@index');
 Route::resource('projects', 'ProjectController');
 Route::resource('students', 'StudentController');
 
