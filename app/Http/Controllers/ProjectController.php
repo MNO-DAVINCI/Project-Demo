@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Project;
 use Illuminate\Http\Request;
+use Validator;
 
 class ProjectController extends Controller
 {
@@ -14,7 +15,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return view('projects.index',['projects' => Project::paginate(10)]);
+        return view('projects.index', ['projects' => Project::paginate(10)]);
     }
 
     /**
@@ -24,7 +25,7 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return view('projects.create');
     }
 
     /**
@@ -35,7 +36,24 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = array(
+            'name' => 'required',
+            'description' => 'required',
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect('projects/create')
+                ->withErrors($validator)
+                ->withInput();
+        } else {
+            $project = new Project();
+            $project->name = $request->input('name');
+            $project->description = $request->input('description');
+            $project->save();
+        }
+        return redirect('projects')->with('success', 'Project has been created!');
     }
 
     /**
@@ -46,7 +64,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return view('projects.show', ['project' => $project]);
     }
 
     /**
@@ -57,7 +75,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return view('projects.edit', ['project' => $project]);
     }
 
     /**
@@ -69,7 +87,24 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        $rules = array(
+            'name' => 'required',
+            'description' => 'required',
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->action('ProjectController@edit', ['id' => $project->id])
+                ->withErrors($validator)
+                ->withInput();
+        } else {
+            $project->name = $request->input('name');
+            $project->description = $request->input('description');
+            $project->save();
+        }
+        return redirect('projects')->with('success', 'Project has been edited!');
     }
 
     /**
@@ -80,6 +115,12 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        try {
+            $project->delete();
+            return redirect('projects')->with('success', 'Project has been deleted!');
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect('projects')->withErrors('Failed to delete project, it still has students attached.');
+        }
+
     }
 }

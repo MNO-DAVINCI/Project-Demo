@@ -37,7 +37,7 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         $rules = array(
-            'first_name' => 'required',
+            'first_name' => 'required|min:5',
             'last_name' => 'required',
         );
 
@@ -48,12 +48,12 @@ class StudentController extends Controller
                         ->withErrors($validator)
                         ->withInput();
         } else {
-            $song = new Student();
-            $song->first_name = $request->input('first_name');
-            $song->last_name = $request->input('last_name');
-            $song->save();
+            $student = new Student();
+            $student->first_name = $request->input('first_name');
+            $student->last_name = $request->input('last_name');
+            $student->save();
         }
-        return redirect('students');
+        return redirect('students')->with('success','Student has been created!');
     }
 
     /**
@@ -64,7 +64,7 @@ class StudentController extends Controller
      */
     public function show(Student $student)
     {
-        //
+        return view('students.show', ['student' => $student]);
     }
 
     /**
@@ -75,7 +75,7 @@ class StudentController extends Controller
      */
     public function edit(Student $student)
     {
-        //
+        return view('students.edit', ['student' => $student]);   
     }
 
     /**
@@ -87,7 +87,24 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        //
+        $rules = array(
+            'first_name' => 'required|min:5',
+            'last_name' => 'required',
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()
+                        ->action('StudentController@edit', ['id' => $student->id])
+                        ->withErrors($validator)
+                        ->withInput();
+        } else {
+            $student->first_name = $request->input('first_name');
+            $student->last_name = $request->input('last_name');
+            $student->save();
+        }
+        return redirect('students')->with('success','Student has been edited!');
     }
 
     /**
@@ -98,6 +115,7 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        //
+        $student->delete();
+        return redirect('students')->with('success','Student has been deleted!');
     }
 }

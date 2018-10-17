@@ -8,6 +8,6 @@ class Student extends Model
 {
     public function projects()
     {
-    	return $this->belongsToMany('App\Student');
+    	return $this->belongsToMany('App\Project');
     }
 }
